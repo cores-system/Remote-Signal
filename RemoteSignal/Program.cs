@@ -2,11 +2,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Remote_Signal
+namespace RemoteSignal
 {
     class Program
     {
@@ -27,7 +26,7 @@ namespace Remote_Signal
                 }
                 else
                 {
-                    new WebClient().DownloadString($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}");
+                    _ = HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null);
                 }
             });
 
@@ -47,6 +46,23 @@ namespace Remote_Signal
                 Console.WriteLine($"\nGET | {url}");
 
                 byte[] buffer = await HttpClient.Get(url, JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
+                if (buffer == null)
+                {
+                    Console.WriteLine("\tbufferLength: 0");
+                    return;
+                }
+
+                Console.WriteLine($"\tbufferLength: {buffer.Length}");
+                await hubConnection.SendAsync("OnData", randKey, buffer);
+            });
+            #endregion
+
+            #region OnPost
+            hubConnection.On("OnPost", async (string randKey, string url, string data, string addHeaders) =>
+            {
+                Console.WriteLine($"\nPOST | {url}");
+
+                byte[] buffer = await HttpClient.Post(url, JsonConvert.DeserializeObject<HttpContent>(data), JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
                 if (buffer == null)
                 {
                     Console.WriteLine("\tbufferLength: 0");

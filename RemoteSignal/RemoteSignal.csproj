@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Remote_Signal</RootNamespace>
+    <RootNamespace>RemoteSignal</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
