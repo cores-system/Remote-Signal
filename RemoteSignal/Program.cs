@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace RemoteSignal
@@ -19,10 +20,13 @@ namespace RemoteSignal
 
             hubConnection.On("OnConnected", (string supportVerion, string connectionId) =>
             {
-                if (supportVerion != "14042020")
+                if (supportVerion != "16042020")
                 {
-                    Console.WriteLine("Версия больше не поддерживается, обновите до актуальной");
                     hubConnection.StopAsync();
+
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Версия больше не поддерживается, обновите до актуальной\n\thttp://rs.nserv.host/");
                 }
                 else
                 {
@@ -32,8 +36,12 @@ namespace RemoteSignal
 
             RunAsync().Wait();
 
-            Console.Clear();
-            Console.WriteLine("Connected: " + (hubConnection.State == HubConnectionState.Connected));
+            if (hubConnection.State == HubConnectionState.Connected)
+            {
+                Console.Clear();
+                Console.WriteLine("Connected: true");
+            }
+
             Console.ReadLine();
         }
 
@@ -58,11 +66,11 @@ namespace RemoteSignal
             #endregion
 
             #region OnPost
-            hubConnection.On("OnPost", async (string randKey, string url, string data, string addHeaders) =>
+            hubConnection.On("OnPost", async (string randKey, string url, string content, string encodingName, string mediaType, string addHeaders) =>
             {
-                Console.WriteLine($"\nPOST | {url}");
+                Console.WriteLine($"\nPOST | {url}\n\t{content}");
 
-                byte[] buffer = await HttpClient.Post(url, JsonConvert.DeserializeObject<HttpContent>(data), JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
+                byte[] buffer = await HttpClient.Post(url, new StringContent(content, Encoding.GetEncoding(encodingName), mediaType), JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
                 if (buffer == null)
                 {
                     Console.WriteLine("\tbufferLength: 0");
@@ -81,7 +89,7 @@ namespace RemoteSignal
         #region HubConnection_Closed
         static Task HubConnection_Closed(Exception arg)
         {
-            Console.WriteLine("Connection Closed: " + arg.Message);
+            Console.WriteLine($"\nConnection closed{(arg?.Message != null ? $": {arg.Message}" : "")}");
             hubConnection.Closed -= HubConnection_Closed;
             return Task.CompletedTask;
         }
