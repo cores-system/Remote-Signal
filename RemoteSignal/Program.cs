@@ -20,7 +20,7 @@ namespace RemoteSignal
 
             hubConnection.On("OnConnected", (string supportVerion, string connectionId) =>
             {
-                if (supportVerion != "16042020")
+                if (supportVerion != "25042020")
                 {
                     hubConnection.StopAsync();
 
@@ -56,7 +56,7 @@ namespace RemoteSignal
                 byte[] buffer = await HttpClient.Get(url, JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
                 if (buffer == null)
                 {
-                    Console.WriteLine("\tbufferLength: 0");
+                    Console.WriteLine("\tbufferLength: 0 / ошибка");
                     return;
                 }
 
@@ -73,12 +73,29 @@ namespace RemoteSignal
                 byte[] buffer = await HttpClient.Post(url, new StringContent(content, Encoding.GetEncoding(encodingName), mediaType), JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
                 if (buffer == null)
                 {
-                    Console.WriteLine("\tbufferLength: 0");
+                    Console.WriteLine("\tbufferLength: 0 / ошибка");
                     return;
                 }
 
                 Console.WriteLine($"\tbufferLength: {buffer.Length}");
                 await hubConnection.SendAsync("OnData", randKey, buffer);
+            });
+            #endregion
+
+            #region OnLogin
+            hubConnection.On("OnLogin", async (string randKey, string url, string content, string encodingName, string mediaType, string addHeaders) =>
+            {
+                Console.WriteLine($"\nTakeLogin | {url}\n\t{content}");
+
+                string cookies = await HttpClient.TakeLogin(url, new StringContent(content, Encoding.GetEncoding(encodingName), mediaType), JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
+                if (cookies == null)
+                {
+                    Console.WriteLine("\ncookie: null");
+                    return;
+                }
+
+                Console.WriteLine($"\ncookie: {cookies}");
+                await hubConnection.SendAsync("OnData", randKey, Encoding.UTF8.GetBytes(cookies));
             });
             #endregion
 
@@ -89,6 +106,7 @@ namespace RemoteSignal
         #region HubConnection_Closed
         static Task HubConnection_Closed(Exception arg)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"\nConnection closed{(arg?.Message != null ? $": {arg.Message}" : "")}");
             hubConnection.Closed -= HubConnection_Closed;
             return Task.CompletedTask;

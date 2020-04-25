@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace RemoteSignal
@@ -58,6 +59,49 @@ namespace RemoteSignal
                 {
                     if (response.StatusCode == HttpStatusCode.OK)
                         return await response.Content.ReadAsByteArrayAsync();
+                }
+            }
+            catch { }
+
+            return null;
+        }
+        #endregion
+
+        #region TakeLogin
+        async public static Task<string> TakeLogin(string url, HttpContent data, List<(string name, string val)> addHeaders)
+        {
+            try
+            {
+                var clientHandler = new HttpClientHandler()
+                {
+                    AllowAutoRedirect = false,
+                    AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.GZip | DecompressionMethods.Deflate
+                };
+
+                using (var client = new System.Net.Http.HttpClient(clientHandler))
+                {
+                    client.Timeout = TimeSpan.FromSeconds(8);
+
+                    foreach (var item in addHeaders)
+                        client.DefaultRequestHeaders.Add(item.name, item.val);
+
+                    using (HttpResponseMessage response = await client.PostAsync(url, data))
+                    {
+                        if (response.Headers.TryGetValues("Set-Cookie", out var cook))
+                        {
+                            StringBuilder result = new StringBuilder();
+                            foreach (string line in cook)
+                            {
+                                if (string.IsNullOrWhiteSpace(line))
+                                    continue;
+
+                                result.Append($"{line} ");
+                            }
+
+                            if (result.Length > 0)
+                                return result.ToString();
+                        }
+                    }
                 }
             }
             catch { }
