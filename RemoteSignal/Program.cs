@@ -16,14 +16,7 @@ namespace RemoteSignal
         {
             Console.WriteLine("Connection..");
             BuildOrReBuldHub();
-
             StartAsync().Wait();
-
-            if (hubConnection.State == HubConnectionState.Connected)
-            {
-                Console.Clear();
-                Console.WriteLine("Connected: true");
-            }
 
             Console.ReadLine();
         }
@@ -44,14 +37,18 @@ namespace RemoteSignal
                 {
                     Console.Clear();
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Версия больше не поддерживается, обновите до актуальной\n\thttp://rs.nserv.host/");
+                    Console.WriteLine($"Версия больше не поддерживается, обновите до актуальной ({supportVerion})\n\thttp://rs.nserv.host/");
 
                     hubConnection.Closed -= HubConnection_Closed;
                     await hubConnection.StopAsync();
                 }
                 else
                 {
-                    _ = HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null);
+                    if (HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null) != null)
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"Connected: true\nId: {connectionId}");
+                    }
                 }
             });
         }
@@ -121,9 +118,9 @@ namespace RemoteSignal
             DateTime startReConnection = DateTime.Now;
             ReConnection: Console.WriteLine("\nReConnection..");
 
-            if (startReConnection.AddMinutes(2) > DateTime.Now)
+            if (DateTime.Now.AddMinutes(-5) > startReConnection)
             {
-                Console.WriteLine("ReConnected: false\nTimeoutReConnected > 2min ;(");
+                Console.WriteLine("ReConnected: false\nTimeoutReConnected > 5min ;(");
                 return;
             }
 
@@ -134,12 +131,7 @@ namespace RemoteSignal
             }
             catch { await Task.Delay(2000); }
 
-            if (hubConnection.State == HubConnectionState.Connected)
-            {
-                Console.Clear();
-                Console.WriteLine("Connected: true");
-            }
-            else 
+            if (hubConnection.State != HubConnectionState.Connected)
             {
                 Console.WriteLine("ReConnected: false");
                 goto ReConnection; 
