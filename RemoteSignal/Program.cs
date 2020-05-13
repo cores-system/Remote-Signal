@@ -15,26 +15,9 @@ namespace RemoteSignal
         static void Main(string[] args)
         {
             Console.WriteLine("Connection..");
-            hubConnection = new HubConnectionBuilder().WithUrl("http://nserv.host:5300/hubs/rs").Build();
-            hubConnection.Closed += HubConnection_Closed;
+            BuildOrReBuldHub();
 
-            hubConnection.On("OnConnected", (string supportVerion, string connectionId) =>
-            {
-                if (supportVerion != "25042020")
-                {
-                    hubConnection.StopAsync();
-
-                    Console.Clear();
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Версия больше не поддерживается, обновите до актуальной\n\thttp://rs.nserv.host/");
-                }
-                else
-                {
-                    _ = HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null);
-                }
-            });
-
-            RunAsync().Wait();
+            StartAsync().Wait();
 
             if (hubConnection.State == HubConnectionState.Connected)
             {
@@ -45,8 +28,37 @@ namespace RemoteSignal
             Console.ReadLine();
         }
 
-        #region RunAsync
-        async static Task RunAsync()
+        #region BuildOrReBuldHub
+        static void BuildOrReBuldHub()
+        {
+            if (hubConnection != null)
+                hubConnection.Closed -= HubConnection_Closed;
+
+            hubConnection = new HubConnectionBuilder().WithUrl("http://nserv.host:5300/hubs/rs").Build();
+            hubConnection.HandshakeTimeout = TimeSpan.FromSeconds(5);
+            hubConnection.Closed += HubConnection_Closed;
+
+            hubConnection.On("OnConnected", async (string supportVerion, string connectionId) =>
+            {
+                if (supportVerion != "13052020")
+                {
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Версия больше не поддерживается, обновите до актуальной\n\thttp://rs.nserv.host/");
+
+                    hubConnection.Closed -= HubConnection_Closed;
+                    await hubConnection.StopAsync();
+                }
+                else
+                {
+                    _ = HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null);
+                }
+            });
+        }
+        #endregion
+
+        #region StartAsync
+        async static Task StartAsync()
         {
             #region OnGet
             hubConnection.On("OnGet", async (string randKey, string url, string addHeaders) =>
@@ -104,12 +116,34 @@ namespace RemoteSignal
         #endregion
 
         #region HubConnection_Closed
-        static Task HubConnection_Closed(Exception arg)
+        async static Task HubConnection_Closed(Exception arg)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"\nConnection closed{(arg?.Message != null ? $": {arg.Message}" : "")}");
-            hubConnection.Closed -= HubConnection_Closed;
-            return Task.CompletedTask;
+            DateTime startReConnection = DateTime.Now;
+            ReConnection: Console.WriteLine("\nReConnection..");
+
+            if (startReConnection.AddMinutes(2) > DateTime.Now)
+            {
+                Console.WriteLine("ReConnected: false\nTimeoutReConnected > 2min ;(");
+                return;
+            }
+
+            try
+            {
+                BuildOrReBuldHub();
+                await StartAsync();
+            }
+            catch { await Task.Delay(2000); }
+
+            if (hubConnection.State == HubConnectionState.Connected)
+            {
+                Console.Clear();
+                Console.WriteLine("Connected: true");
+            }
+            else 
+            {
+                Console.WriteLine("ReConnected: false");
+                goto ReConnection; 
+            }
         }
         #endregion
     }

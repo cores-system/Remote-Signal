@@ -21,7 +21,7 @@ namespace RemoteSignal
 
             var client = new System.Net.Http.HttpClient(handler);
             client.Timeout = TimeSpan.FromSeconds(8);        // Сервер ждет ответ 10 секунд, ждать ответ источника дольше 8 секунд нет смысла
-            client.MaxResponseContentBufferSize = 1_000_000; // 1MB
+            client.MaxResponseContentBufferSize = 5_000_000; // 5MB
 
             if (addHeaders != null)
             {
