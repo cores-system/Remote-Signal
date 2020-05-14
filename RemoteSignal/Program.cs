@@ -12,13 +12,18 @@ namespace RemoteSignal
     {
         static HubConnection hubConnection;
 
-        static void Main(string[] args)
+        async static Task Main(string[] args)
         {
             Console.WriteLine("Connection..");
             BuildOrReBuldHub();
-            StartAsync().Wait();
+            await StartAsync();
 
-            Console.ReadLine();
+            do
+            {
+                Console.ReadLine();
+                await Task.Delay(40);
+            } 
+            while (Environment.OSVersion.Platform == PlatformID.Unix);
         }
 
         #region BuildOrReBuldHub
@@ -35,10 +40,13 @@ namespace RemoteSignal
             {
                 if (supportVerion != "13052020")
                 {
-                    Console.Clear();
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Версия больше не поддерживается, обновите до актуальной ({supportVerion})\n\thttp://rs.nserv.host/");
+                    if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                    {
+                        Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
 
+                    Console.WriteLine($"Версия больше не поддерживается, обновите до актуальной (v{supportVerion})\n\thttp://rs.nserv.host/");
                     hubConnection.Closed -= HubConnection_Closed;
                     await hubConnection.StopAsync();
                 }
@@ -46,7 +54,8 @@ namespace RemoteSignal
                 {
                     if (HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null) != null)
                     {
-                        Console.Clear();
+                        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                            Console.Clear();
                         Console.WriteLine($"Connected: true\nId: {connectionId}");
                     }
                 }
@@ -129,7 +138,7 @@ namespace RemoteSignal
                 BuildOrReBuldHub();
                 await StartAsync();
             }
-            catch { await Task.Delay(2000); }
+            catch { await Task.Delay(8000); }
 
             if (hubConnection.State != HubConnectionState.Connected)
             {
