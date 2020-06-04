@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteSignal", "RemoteSignal\RemoteSignal.csproj", "{FA587F76-BA2E-4DF3-B0AB-3398A2C79C24}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RS.GUI", "RS.GUI\RS.GUI.csproj", "{56E0B13C-9992-419A-9E66-34F1BF666081}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RS.Shared", "RS.Shared\RS.Shared.csproj", "{C274324F-8E34-41E6-89FE-6CECE2078943}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{FA587F76-BA2E-4DF3-B0AB-3398A2C79C24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA587F76-BA2E-4DF3-B0AB-3398A2C79C24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA587F76-BA2E-4DF3-B0AB-3398A2C79C24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56E0B13C-9992-419A-9E66-34F1BF666081}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56E0B13C-9992-419A-9E66-34F1BF666081}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56E0B13C-9992-419A-9E66-34F1BF666081}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56E0B13C-9992-419A-9E66-34F1BF666081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C274324F-8E34-41E6-89FE-6CECE2078943}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C274324F-8E34-41E6-89FE-6CECE2078943}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C274324F-8E34-41E6-89FE-6CECE2078943}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C274324F-8E34-41E6-89FE-6CECE2078943}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

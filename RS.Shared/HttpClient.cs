@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace RemoteSignal
+namespace RS.Shared
 {
     public static class HttpClient
     {
