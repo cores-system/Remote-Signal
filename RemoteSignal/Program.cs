@@ -120,16 +120,16 @@ namespace RemoteSignal
             #region OnLocation
             hubConnection.On("OnLocation", async (string randKey, string url, bool encodeArgs, string addHeaders) =>
             {
-                Console.WriteLine($"\nGetLocation | {url}");
+                Console.WriteLine($"\nLocation | {url}");
 
                 string location = await HttpClient.Location(url, encodeArgs, JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
                 if (location == null)
                 {
-                    Console.WriteLine("\tlocation: null");
+                    Console.WriteLine("\turi: null");
                     return;
                 }
 
-                Console.WriteLine($"\tlocation: {location}");
+                Console.WriteLine($"\turi: {location}");
                 await hubConnection.SendAsync("OnData", randKey, Encoding.UTF8.GetBytes(location));
             });
             #endregion
