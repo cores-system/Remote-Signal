@@ -38,7 +38,7 @@ namespace RemoteSignal
 
             hubConnection.On("OnConnected", async (string supportVerion, string connectionId) =>
             {
-                if (supportVerion != "13052020")
+                if (supportVerion != "04062020")
                 {
                     if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                     {
@@ -108,12 +108,29 @@ namespace RemoteSignal
                 string cookies = await HttpClient.TakeLogin(url, new StringContent(content, Encoding.GetEncoding(encodingName), mediaType), JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
                 if (cookies == null)
                 {
-                    Console.WriteLine("\ncookie: null");
+                    Console.WriteLine("\tcookie: null");
                     return;
                 }
 
-                Console.WriteLine($"\ncookie: {cookies}");
+                Console.WriteLine($"\tcookie: {cookies}");
                 await hubConnection.SendAsync("OnData", randKey, Encoding.UTF8.GetBytes(cookies));
+            });
+            #endregion
+
+            #region OnLocation
+            hubConnection.On("OnLocation", async (string randKey, string url, bool encodeArgs, string addHeaders) =>
+            {
+                Console.WriteLine($"\nGetLocation | {url}");
+
+                string location = await HttpClient.Location(url, encodeArgs, JsonConvert.DeserializeObject<List<(string name, string val)>>(addHeaders));
+                if (location == null)
+                {
+                    Console.WriteLine("\tlocation: null");
+                    return;
+                }
+
+                Console.WriteLine($"\tlocation: {location}");
+                await hubConnection.SendAsync("OnData", randKey, Encoding.UTF8.GetBytes(location));
             });
             #endregion
 

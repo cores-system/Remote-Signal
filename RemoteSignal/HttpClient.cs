@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace RemoteSignal
 {
@@ -102,6 +104,37 @@ namespace RemoteSignal
                                 return result.ToString();
                         }
                     }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+        #endregion
+
+        #region Location
+        async public static ValueTask<string> Location(string url, bool encodeArgs, List<(string name, string val)> addHeaders = null)
+        {
+            try
+            {
+                using (HttpResponseMessage response = await client(addHeaders).GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    string location = response.Headers?.Location?.ToString() ?? response.RequestMessage?.RequestUri?.ToString();
+                    location = Uri.EscapeUriString(HttpUtility.UrlDecode(location ?? string.Empty));
+
+                    if (encodeArgs)
+                    {
+                        var match = Regex.Match(location, "(\\?|&)([^=]+)=([^\\?&\n\r]+)");
+                        while (match.Success)
+                        {
+                            string val = HttpUtility.UrlEncode(match.Groups[3].Value);
+                            location = location.Replace($"={match.Groups[3].Value}", $"={val}");
+
+                            match = match.NextMatch();
+                        }
+                    }
+
+                    return string.IsNullOrWhiteSpace(location) ? null : location;
                 }
             }
             catch { }
