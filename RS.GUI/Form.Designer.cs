@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace RS.GUI
 {
@@ -57,8 +58,6 @@ namespace RS.GUI
             // 
             // Form1
             // 
-            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
-            this.ShowInTaskbar = false;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(721, 377);

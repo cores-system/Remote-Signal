@@ -28,7 +28,11 @@ namespace RS.GUI
                 regKay = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
 
                 if (regKay.GetValue("RemoteSignal") != null)
+                {
+                    ShowInTaskbar = false;
+                    WindowState = FormWindowState.Minimized;
                     btn_autorun.Text = "Удалить с автозапуска";
+                }
             }
         }
         #endregion
