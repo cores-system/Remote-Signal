@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             Appearing="ContentPage_Appearing"  
+             x:Class="RS.Mobile.MainPage">
+
+    <ScrollView>
+        <StackLayout VerticalOptions="FillAndExpand">
+            <Editor x:Name="tb_log" Text="Connection.." IsReadOnly="true" AutoSize="TextChanges" />
+        </StackLayout>
+    </ScrollView>
+
+</ContentPage>

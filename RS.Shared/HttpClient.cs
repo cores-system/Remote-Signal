@@ -16,7 +16,7 @@ namespace RS.Shared
         {
             HttpClientHandler handler = new HttpClientHandler()
             {
-                AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.GZip | DecompressionMethods.Deflate
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             };
 
             handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
@@ -77,7 +77,7 @@ namespace RS.Shared
                 var clientHandler = new HttpClientHandler()
                 {
                     AllowAutoRedirect = false,
-                    AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
                 };
 
                 using (var client = new System.Net.Http.HttpClient(clientHandler))
