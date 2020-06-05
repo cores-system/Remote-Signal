@@ -20,13 +20,16 @@ namespace RS.GUI
         {
             InitializeComponent();
             resources = new ComponentResourceManager(typeof(Form));
-            regKay = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
 
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
                 btn_autorun.Enabled = false;
+            else
+            {
+                regKay = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
 
-            if (regKay.GetValue("RemoteSignal") != null)
-                btn_autorun.Text = "Удалить с автозапуска";
+                if (regKay.GetValue("RemoteSignal") != null)
+                    btn_autorun.Text = "Удалить с автозапуска";
+            }
         }
         #endregion
 
