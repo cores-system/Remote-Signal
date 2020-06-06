@@ -151,10 +151,12 @@ namespace RS.Shared
         {
             using (var sourceStream = new MemoryStream(source))
             {
-                using (GZipStream compressionStream = new GZipStream(sourceStream, CompressionMode.Compress))
+                using (var targetStream = new MemoryStream())
                 {
-                    sourceStream.CopyTo(compressionStream);
-                    return sourceStream.ToArray();
+                    using (GZipStream compressionStream = new GZipStream(targetStream, CompressionMode.Compress))
+                        sourceStream.CopyTo(compressionStream);
+
+                    return targetStream.ToArray();
                 }
             }
         }
