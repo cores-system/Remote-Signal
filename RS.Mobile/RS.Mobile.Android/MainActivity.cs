@@ -1,11 +1,10 @@
-﻿using System;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.OS;
+using RS.Shared;
+using Microsoft.AspNetCore.SignalR.Client;
+using Android.Content;
 
 namespace RS.Mobile.Droid
 {
@@ -18,16 +17,29 @@ namespace RS.Mobile.Droid
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
+            RegisterReceiver(new BackgroundTasks(), new IntentFilter("com.rs.mobile"));
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
         }
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        protected override void OnResume()
+        {
+            if (RsClient.hubConnection == null || RsClient.hubConnection.State != HubConnectionState.Connected)
+            {
+                RsClient.BuildOrReBuldHub();
+                RsClient.StartAsync();
+            }
+
+            base.OnResume();
         }
     }
 }

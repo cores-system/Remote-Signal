@@ -11,7 +11,7 @@ namespace RS.Shared
     public class RsClient
     {
         #region RsClient
-        static HubConnection hubConnection;
+        public static HubConnection hubConnection;
 
         public static Action<string> OnLog;
 

@@ -58,6 +58,7 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundTasks.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +90,10 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\RS.Shared\RS.Shared.csproj">
+      <Project>{c274324f-8e34-41e6-89fe-6cece2078943}</Project>
+      <Name>RS.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RS.Mobile\RS.Mobile.csproj">
       <Project>{DE9BEA05-A3C1-4F2F-B315-730DE616BE41}</Project>
       <Name>RS.Mobile</Name>
