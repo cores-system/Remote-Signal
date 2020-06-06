@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -43,7 +45,7 @@ namespace RS.Shared
                 using (HttpResponseMessage response = await client(addHeaders).GetAsync(url))
                 {
                     if (response.StatusCode == HttpStatusCode.OK)
-                        return await response.Content.ReadAsByteArrayAsync();
+                        return Compression(await response.Content.ReadAsByteArrayAsync());
                 }
             }
             catch { }
@@ -60,7 +62,7 @@ namespace RS.Shared
                 using (HttpResponseMessage response = await client(addHeaders).PostAsync(url, data))
                 {
                     if (response.StatusCode == HttpStatusCode.OK)
-                        return await response.Content.ReadAsByteArrayAsync();
+                        return Compression(await response.Content.ReadAsByteArrayAsync());
                 }
             }
             catch { }
@@ -140,6 +142,21 @@ namespace RS.Shared
             catch { }
 
             return null;
+        }
+        #endregion
+
+
+        #region Compression
+        static byte[] Compression(byte[] source)
+        {
+            using (var sourceStream = new MemoryStream(source))
+            {
+                using (GZipStream compressionStream = new GZipStream(sourceStream, CompressionMode.Compress))
+                {
+                    sourceStream.CopyTo(compressionStream);
+                    return sourceStream.ToArray();
+                }
+            }
         }
         #endregion
     }
