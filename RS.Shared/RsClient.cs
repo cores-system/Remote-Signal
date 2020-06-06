@@ -30,7 +30,7 @@ namespace RS.Shared
 
             hubConnection.On("OnConnected", async (string supportVerion, string connectionId) =>
             {
-                if (supportVerion != "04062020")
+                if (supportVerion != "06062020")
                 {
                     OnDestroy();
                     OnClearLog();
