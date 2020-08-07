@@ -13,20 +13,22 @@ namespace RS.Shared
 {
     public static class HttpClient
     {
-        #region client
-        static System.Net.Http.HttpClient client(List<(string name, string val)> addHeaders)
+        #region Client
+        private static System.Net.Http.HttpClient Client(List<(string name, string val)> addHeaders)
         {
-            HttpClientHandler handler = new HttpClientHandler()
+            var handler = new HttpClientHandler()
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             };
 
             handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
 
-            var client = new System.Net.Http.HttpClient(handler);
-            client.Timeout = TimeSpan.FromSeconds(8);        // Сервер ждет ответ 10 секунд, ждать ответ источника дольше 8 секунд нет смысла
-            client.MaxResponseContentBufferSize = 5_000_000; // 5MB
-
+            var client = new System.Net.Http.HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromSeconds(8),       // Сервер ждет ответ 10 секунд, ждать ответ источника дольше 8 секунд нет смысла
+                MaxResponseContentBufferSize = 5_000_000 // 5MB
+            };
+            
             if (addHeaders != null)
             {
                 foreach (var item in addHeaders)
@@ -38,11 +40,11 @@ namespace RS.Shared
         #endregion
 
         #region Get
-        async public static ValueTask<byte[]> Get(string url, List<(string name, string val)> addHeaders = null)
+        public static async ValueTask<byte[]> Get(string url, List<(string name, string val)> addHeaders = null)
         {
             try
             {
-                using (HttpResponseMessage response = await client(addHeaders).GetAsync(url))
+                using (HttpResponseMessage response = await Client(addHeaders).GetAsync(url))
                 {
                     if (response.StatusCode == HttpStatusCode.OK)
                         return Compression(await response.Content.ReadAsByteArrayAsync());
@@ -55,11 +57,11 @@ namespace RS.Shared
         #endregion
 
         #region Post
-        async public static ValueTask<byte[]> Post(string url, HttpContent data, List<(string name, string val)> addHeaders)
+        public static async ValueTask<byte[]> Post(string url, HttpContent data, List<(string name, string val)> addHeaders)
         {
             try
             {
-                using (HttpResponseMessage response = await client(addHeaders).PostAsync(url, data))
+                using (HttpResponseMessage response = await Client(addHeaders).PostAsync(url, data))
                 {
                     if (response.StatusCode == HttpStatusCode.OK)
                         return Compression(await response.Content.ReadAsByteArrayAsync());
@@ -72,7 +74,7 @@ namespace RS.Shared
         #endregion
 
         #region TakeLogin
-        async public static Task<string> TakeLogin(string url, HttpContent data, List<(string name, string val)> addHeaders)
+        public static async Task<string> TakeLogin(string url, HttpContent data, List<(string name, string val)> addHeaders)
         {
             try
             {
@@ -86,8 +88,8 @@ namespace RS.Shared
                 {
                     client.Timeout = TimeSpan.FromSeconds(8);
 
-                    foreach (var item in addHeaders)
-                        client.DefaultRequestHeaders.Add(item.name, item.val);
+                    foreach (var (name, val) in addHeaders)
+                        client.DefaultRequestHeaders.Add(name, val);
 
                     using (HttpResponseMessage response = await client.PostAsync(url, data))
                     {
@@ -115,13 +117,13 @@ namespace RS.Shared
         #endregion
 
         #region Location
-        async public static ValueTask<string> Location(string url, bool encodeArgs, List<(string name, string val)> addHeaders = null)
+        public static async ValueTask<string> Location(string url, bool encodeArgs, List<(string name, string val)> addHeaders = null)
         {
             try
             {
-                using (HttpResponseMessage response = await client(addHeaders).GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                using (var response = await Client(addHeaders).GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
                 {
-                    string location = response.Headers?.Location?.ToString() ?? response.RequestMessage?.RequestUri?.ToString();
+                    var location = response.Headers?.Location?.ToString() ?? response.RequestMessage?.RequestUri?.ToString();
                     location = Uri.EscapeUriString(HttpUtility.UrlDecode(location ?? string.Empty));
 
                     if (encodeArgs)
@@ -153,7 +155,7 @@ namespace RS.Shared
             {
                 using (var targetStream = new MemoryStream())
                 {
-                    using (GZipStream compressionStream = new GZipStream(targetStream, CompressionMode.Compress))
+                    using (var compressionStream = new GZipStream(targetStream, CompressionMode.Compress))
                         sourceStream.CopyTo(compressionStream);
 
                     return targetStream.ToArray();
