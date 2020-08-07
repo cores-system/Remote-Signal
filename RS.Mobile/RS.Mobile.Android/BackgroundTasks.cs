@@ -11,9 +11,9 @@ namespace RS.Mobile.Droid
     {
         public override void OnReceive(Context context, Intent intent)
         {
-            if (RsClient.hubConnection == null || RsClient.hubConnection.State != HubConnectionState.Connected)
+            if (RsClient.HubConnection == null || RsClient.HubConnection.State != HubConnectionState.Connected)
             {
-                RsClient.BuildOrReBuldHub();
+                RsClient.BuildOrReBuildHub();
                 RsClient.StartAsync();
             }
         }

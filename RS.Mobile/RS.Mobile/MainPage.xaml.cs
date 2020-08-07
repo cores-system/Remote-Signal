@@ -14,11 +14,11 @@ namespace RS.Mobile
             InitializeComponent();
 
             RsClient.OnDestroy += () => { };
-            RsClient.OnLog += log => tb_log.Text += log + Environment.NewLine;
-            RsClient.OnClearLog += () => tb_log.Text = string.Empty;
+            RsClient.OnLog += log => TbLog.Text += log + Environment.NewLine;
+            RsClient.OnClearLog += () => TbLog.Text = string.Empty;
 
-            if (RsClient.hubConnection != null && RsClient.hubConnection.State == HubConnectionState.Connected)
-                tb_log.Text = "Connected: true";
+            if (RsClient.HubConnection != null && RsClient.HubConnection.State == HubConnectionState.Connected)
+                TbLog.Text = "Connected: true";
         }
     }
 }

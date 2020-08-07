@@ -9,7 +9,7 @@ namespace RemoteSignal
         async static Task Main(string[] args)
         {
             RsClient.OnDestroy += () => Console.ForegroundColor = ConsoleColor.Red;
-            RsClient.OnLog += log => Console.WriteLine(log);
+            RsClient.OnLog += Console.WriteLine;
 
             RsClient.OnClearLog += () =>
             {
@@ -18,7 +18,7 @@ namespace RemoteSignal
             };
 
             Console.WriteLine("Connection..");
-            RsClient.BuildOrReBuldHub();
+            RsClient.BuildOrReBuildHub();
             await RsClient.StartAsync();
 
             do

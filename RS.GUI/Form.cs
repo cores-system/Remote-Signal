@@ -10,24 +10,24 @@ namespace RS.GUI
     public partial class Form : System.Windows.Forms.Form
     {
         #region Form
-        NotifyIcon ico;
-        ComponentResourceManager resources;
-        RegistryKey regKay;
+        NotifyIcon _ico;
+        ComponentResourceManager _resources;
+        RegistryKey _regKay;
 
-        bool NoCancel = true;
+        bool _noCancel = true;
 
         public Form()
         {
             InitializeComponent();
-            resources = new ComponentResourceManager(typeof(Form));
+            _resources = new ComponentResourceManager(typeof(Form));
 
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
                 btn_autorun.Enabled = false;
             else
             {
-                regKay = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
+                _regKay = Registry.CurrentUser.CreateSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run\\");
 
-                if (regKay.GetValue("RemoteSignal") != null)
+                if (_regKay.GetValue("RemoteSignal") != null)
                 {
                     ShowInTaskbar = false;
                     WindowState = FormWindowState.Minimized;
@@ -41,11 +41,11 @@ namespace RS.GUI
         async protected override void OnLoad(EventArgs e)
         {
             #region ico
-            ico = new NotifyIcon();
-            ico.Icon = (Icon)resources.GetObject("$this.Icon");
-            ico.Visible = true;
+            _ico = new NotifyIcon();
+            _ico.Icon = (Icon)_resources.GetObject("$this.Icon");
+            _ico.Visible = true;
 
-            ico.DoubleClick += delegate (object sender, EventArgs args)
+            _ico.DoubleClick += delegate (object sender, EventArgs args)
             {
                 Show();
                 ShowInTaskbar = true;
@@ -55,11 +55,11 @@ namespace RS.GUI
             var menuStrip = new ContextMenuStrip();
             menuStrip.Items.Add("Выход", null, delegate
             {
-                NoCancel = false;
+                _noCancel = false;
                 Close();
             });
 
-            ico.ContextMenuStrip = menuStrip;
+            _ico.ContextMenuStrip = menuStrip;
             #endregion
 
             #region RsClient
@@ -69,7 +69,7 @@ namespace RS.GUI
             RsClient.OnLog += log => tb_log.Text += log + Environment.NewLine;
             RsClient.OnClearLog += () => tb_log.Text = string.Empty;
 
-            RsClient.BuildOrReBuldHub();
+            RsClient.BuildOrReBuildHub();
             await RsClient.StartAsync();
             #endregion
 
@@ -80,15 +80,15 @@ namespace RS.GUI
         #region OnFormClosing
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (NoCancel)
+            if (_noCancel)
             {
                 Hide();
                 e.Cancel = true;
             }
             else
             {
-                regKay.Close();
-                ico.Dispose();
+                _regKay.Close();
+                _ico.Dispose();
             }
 
             base.OnFormClosing(e);
@@ -100,14 +100,14 @@ namespace RS.GUI
         {
             try
             {
-                if (regKay.GetValue("RemoteSignal") == null)
+                if (_regKay.GetValue("RemoteSignal") == null)
                 {
-                    regKay.SetValue("RemoteSignal", Application.ExecutablePath);
+                    _regKay.SetValue("RemoteSignal", Application.ExecutablePath);
                     btn_autorun.Text = "Удалить с автозапуска";
                 }
                 else
                 {
-                    regKay.DeleteValue("RemoteSignal");
+                    _regKay.DeleteValue("RemoteSignal");
                     btn_autorun.Text = "Добавить в автозапуск";
                 }
             }

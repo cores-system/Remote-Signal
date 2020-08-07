@@ -33,9 +33,9 @@ namespace RS.Mobile.Droid
 
         protected override void OnResume()
         {
-            if (RsClient.hubConnection == null || RsClient.hubConnection.State != HubConnectionState.Connected)
+            if (RsClient.HubConnection == null || RsClient.HubConnection.State != HubConnectionState.Connected)
             {
-                RsClient.BuildOrReBuldHub();
+                RsClient.BuildOrReBuildHub();
                 RsClient.StartAsync();
             }
 

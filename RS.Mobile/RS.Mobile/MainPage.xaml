@@ -8,7 +8,7 @@
 
     <ScrollView>
         <StackLayout VerticalOptions="FillAndExpand">
-            <Editor x:Name="tb_log" Text="Connection.." IsReadOnly="true" AutoSize="TextChanges" />
+            <Editor x:Name="TbLog" Text="Connection.." IsReadOnly="true" AutoSize="TextChanges" />
         </StackLayout>
     </ScrollView>
 
