@@ -102,7 +102,7 @@ namespace RS.GUI
             {
                 if (regKay.GetValue("RemoteSignal") == null)
                 {
-                    regKay.SetValue("RemoteSignal", Application.ExecutablePath);
+                    regKay.SetValue("RemoteSignal", Application.ExecutablePath.Replace(".dll", ".exe"));
                     btn_autorun.Text = "Удалить с автозапуска";
                 }
                 else
