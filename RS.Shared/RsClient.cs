@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using RS.Shared;
 
 namespace RS.Shared
 {
@@ -24,23 +23,33 @@ namespace RS.Shared
             if (hubConnection != null)
                 hubConnection.Closed -= HubConnection_Closed;
 
+            if (hubConnection != null)
+                hubConnection.Reconnecting -= HubConnection_Reconnecting;
+
+            if (hubConnection != null)
+                hubConnection.Reconnected -= HubConnection_Reconnected;
+
             hubConnection = new HubConnectionBuilder().WithUrl("http://nserv.host:5300/hubs/rs").Build();
-            hubConnection.HandshakeTimeout = TimeSpan.FromSeconds(5);
+            hubConnection.HandshakeTimeout = TimeSpan.FromSeconds(8);
             hubConnection.Closed += HubConnection_Closed;
+            hubConnection.Reconnecting += HubConnection_Reconnecting;
+            hubConnection.Reconnected += HubConnection_Reconnected;   
 
             hubConnection.On("OnConnected", async (string supportVerion, string connectionId) =>
             {
-                if (supportVerion != "06062020")
+                if (supportVerion != "23012021")
                 {
                     OnDestroy();
                     OnClearLog();
                     OnLog($"Версия больше не поддерживается, обновите до актуальной (v{supportVerion}){Environment.NewLine}\thttp://rs.nserv.host/");
                     hubConnection.Closed -= HubConnection_Closed;
+                    hubConnection.Reconnecting -= HubConnection_Reconnecting;
+                    hubConnection.Reconnected -= HubConnection_Reconnected;
                     await hubConnection.StopAsync();
                 }
                 else
                 {
-                    if (HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null) != null)
+                    if ((await HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null)) != null)
                     {
                         OnClearLog();
                         OnLog($"Connected: true{Environment.NewLine}Id: {connectionId}");
@@ -125,30 +134,44 @@ namespace RS.Shared
         }
         #endregion
 
+
         #region HubConnection_Closed
         async static Task HubConnection_Closed(Exception arg)
         {
-            DateTime startReConnection = DateTime.Now;
-            ReConnection: OnLog($"{Environment.NewLine}ReConnection..");
-
-            if (DateTime.Now.AddMinutes(-5) > startReConnection)
-            {
-                OnDestroy();
-                OnLog($"ReConnected: false{Environment.NewLine}TimeoutReConnected > 5min ;(");
-                return;
-            }
+            OnLog($"{Environment.NewLine}Connection closed..");
+            ReConnection: OnLog($"{Environment.NewLine}Restart connection..");
 
             try
             {
                 BuildOrReBuldHub();
                 await StartAsync();
             }
-            catch { await Task.Delay(8000); }
+            catch { await Task.Delay(15_000); }
 
             if (hubConnection.State != HubConnectionState.Connected)
             {
                 OnLog("ReConnected: false");
+                await Task.Delay(2_000);
                 goto ReConnection;
+            }
+        }
+        #endregion
+
+        #region HubConnection_Reconnecting
+        private static Task HubConnection_Reconnecting(Exception arg)
+        {
+            OnLog($"{Environment.NewLine}Reconnecting..");
+            return Task.CompletedTask;
+        }
+        #endregion
+
+        #region HubConnection_Reconnected
+        async private static Task HubConnection_Reconnected(string connectionId)
+        {
+            if ((await HttpClient.Get($"http://nserv.host:5300/forkapi/registryrs?connectionId={connectionId}", null)) != null)
+            {
+                OnClearLog();
+                OnLog($"Reconnected: true{Environment.NewLine}Id: {connectionId}");
             }
         }
         #endregion
